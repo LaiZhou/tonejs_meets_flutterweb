@@ -1,9 +1,26 @@
-import 'dart:js' as js;
+@JS()
+library callable_function;
 
+import 'package:js/js.dart';
 import 'package:flutter/material.dart';
 import 'package:modulovalue_project_widgets/all.dart';
 
-void main() => runApp(MyApp());
+/// Allows assigning a function to be callable from `window.functionName()`
+@JS('receiveMidi')
+external set _receiveMidi(void Function(String) f);
+
+/// Allows calling the assigned function from Dart as well.
+@JS("playNote")
+external void playNote(String note, String duration);
+
+void receiveMidi(String midiMessage) {
+  print(midiMessage);
+}
+
+void main() {
+  _receiveMidi = allowInterop(receiveMidi);
+  runApp(MyApp());
+}
 
 class MyApp extends StatelessWidget {
   @override
@@ -83,7 +100,7 @@ class Octave extends StatelessWidget {
                 textAlign: TextAlign.center,
               ),
               onTap: () =>
-                  js.context.callMethod("playNote", ["$char$octave", "8n"]),
+                  playNote("$char$octave", "8n"),
               width: width,
             );
           }).toList(),
@@ -99,7 +116,7 @@ class Octave extends StatelessWidget {
                 return BlackKey(
                   offsetToTheBottom: constraints.biggest.height * 0.3,
                   onTap: () =>
-                      js.context.callMethod("playNote", ["$char$octave", "8n"]),
+                      playNote("$char$octave", "8n"),
                   width: width,
                   text: Text(
                     "$char$octave",
